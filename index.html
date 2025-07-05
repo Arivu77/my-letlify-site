@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cricket Auction App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="left-panel">
+    <div class="settings">
+      <button onclick="openSettings()">⚙️ Settings</button>
+      <div id="settingsPanel" class="hidden">
+        <h4>Enter Password to Enable Auction</h4>
+        <input type="password" id="settingsPassword" placeholder="Enter password" />
+        <button onclick="checkPassword()">Enter</button>
+        <button onclick="resetAllAuction()" style="background: red; color: white;">RESET ALL</button>
+        <div id="settingsContent" class="hidden">
+          <h4>Set Team Purses (Cr)</h4>
+          <input type="number" id="yellowPurse" placeholder="Yellow Purse" value="2" step="0.1"/>
+          <input type="number" id="greenPurse" placeholder="Green Purse" value="2" step="0.1"/>
+          <input type="number" id="bluePurse" placeholder="Blue Purse" value="2" step="0.1"/>
+          <input type="number" id="blackPurse" placeholder="Black Purse" value="2" step="0.1"/>
+          <input type="number" id="redPurse" placeholder="Red Purse" value="2" step="0.1"/>
+          <input type="number" id="whitePurse" placeholder="White Purse" value="2" step="0.1"/>
+          <h4>Set Base Price (Cr)</h4>
+          <input type="number" id="basePriceInput" placeholder="Base Price" value="2" step="0.1"/>
+          <button onclick="applyPurseSettings()">Apply</button>
+          <h4>Add Players</h4>
+          <input type="text" id="playerInput" placeholder="Enter player name" disabled />
+          <button id="addPlayerBtn" onclick="addPlayer()" disabled>Add Player</button>
+          <input type="number" id="bidIncrement" placeholder="Bid increment (Cr)" value="0.2" step="0.1" disabled />
+        </div>
+      </div>
+    </div>
+    <button id="nextPlayerBtn" onclick="nextPlayer()" disabled>Next Player</button>
+    <ol id="playerList"></ol>
+  </div>
+
+  <div class="center-panel">
+    <div class="player-highlight">
+      <div class="player-emoji">👤</div>
+      <div class="player-name" id="currentPlayer">Select Next Player</div>
+    </div>
+    <div class="current-bid" id="currentBid">Current Bid: -</div>
+    <div class="buttons">
+      <button class="bid-btn yellow" onclick="bid('Yellow')" disabled>Y</button>
+      <button class="bid-btn green" onclick="bid('Green')" disabled>G</button>
+      <button class="bid-btn blue" onclick="bid('Blue')" disabled>B</button>
+      <button class="bid-btn black" onclick="bid('Black')" disabled>Bl</button>
+      <button class="bid-btn red" onclick="bid('Red')" disabled>R</button>
+      <button class="bid-btn white" onclick="bid('White')" disabled>W</button>
+    </div>
+    <div>
+      <button class="action-btn sold" onclick="markAsSold()" disabled>SOLD</button>
+      <button class="action-btn unsold" onclick="markAsUnsold()" disabled>UNSOLD</button>
+      <button class="action-btn reset" onclick="resetBid()" disabled>RESET</button>
+      <button class="action-btn undo" onclick="undoBid()" disabled>UNDO BID</button>
+    </div>
+    <div class="team-tables">
+      <div class="team-table"><h4 style="background:#ffeb3b; color:#333;">Yellow - <span id="yellowBudget">2 Cr</span></h4><ol id="yellowList"></ol></div>
+      <div class="team-table"><h4 style="background:#4caf50;">Green - <span id="greenBudget">2 Cr</span></h4><ol id="greenList"></ol></div>
+      <div class="team-table"><h4 style="background:#2196f3;">Blue - <span id="blueBudget">2 Cr</span></h4><ol id="blueList"></ol></div>
+      <div class="team-table"><h4 style="background:#212121;color:#fff;">Black - <span id="blackBudget">2 Cr</span></h4><ol id="blackList"></ol></div>
+      <div class="team-table"><h4 style="background:#f44336;">Red - <span id="redBudget">2 Cr</span></h4><ol id="redList"></ol></div>
+      <div class="team-table"><h4 style="background:#e0e0e0; color:#333;">White - <span id="whiteBudget">2 Cr</span></h4><ol id="whiteList"></ol></div>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <h3>Unsold</h3>
+    <ol id="unsoldList"></ol>
+  </div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
