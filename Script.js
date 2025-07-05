@@ -16,6 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+let lastCompleted = null;
 let players = [];
 let currentPlayer = '';
 let currentBidValue = 0;
@@ -33,9 +34,9 @@ let unsoldPlayers = [];
 let hasFirstBid = false;
 let bidIncrement = 0.2;
 let basePrice = 2;
-let bidHistory = []; // 🌟 New: store bid history for multi-undo
+let bidHistory = [];
 
-const correctPassword = "Auctionarivu";
+const correctPassword = "1";
 
 function updateAuctionData() {
   update(ref(db, 'auction'), {
@@ -49,7 +50,8 @@ function updateAuctionData() {
     hasFirstBid,
     bidIncrement,
     basePrice,
-    bidHistory
+    bidHistory,
+    lastCompleted
   });
 }
 
@@ -69,6 +71,7 @@ onValue(auctionRef, (snapshot) => {
   bidIncrement = data.bidIncrement || 0.2;
   basePrice = data.basePrice || 2;
   bidHistory = data.bidHistory || [];
+  lastCompleted = data.lastCompleted || null;
 
   updateUI();
 });
@@ -103,9 +106,9 @@ function updateUI() {
   for (const team in soldListElems) {
     soldListElems[team].innerHTML = "";
     if (soldPlayers[team]) {
-      soldPlayers[team].forEach((p, i) => {
+      soldPlayers[team].forEach((p) => {
         const li = document.createElement("li");
-        li.innerText = `${i + 1}. ${p}`;
+        li.innerText = `${p.name} - ${p.price} Cr`;
         soldListElems[team].appendChild(li);
       });
     }
@@ -113,9 +116,9 @@ function updateUI() {
 
   const unsoldElem = document.getElementById("unsoldList");
   unsoldElem.innerHTML = "";
-  unsoldPlayers.forEach((p, i) => {
+  unsoldPlayers.forEach((p) => {
     const li = document.createElement("li");
-    li.innerText = `${i + 1}. ${p}`;
+    li.innerText = p;
     unsoldElem.appendChild(li);
   });
 
@@ -123,9 +126,14 @@ function updateUI() {
   playerListElem.innerHTML = "";
   players.forEach((p, i) => {
     const li = document.createElement("li");
-    li.innerText = `${i + 1}. ${p}`;
+    li.innerText = p;
     playerListElem.appendChild(li);
   });
+
+  const undoBtn = document.getElementById("undoSoldBtn");
+  if (undoBtn) {
+    undoBtn.disabled = !lastCompleted;
+  }
 }
 
 window.openSettings = function() {
@@ -162,8 +170,8 @@ window.applyPurseSettings = function() {
 window.addPlayer = function() {
   let name = document.getElementById("playerInput").value.trim();
   if (name) {
-    name = name.replace(/^\d+\.\s*/, ""); // remove accidental numbering
-    players.push(name); // only plain name
+    name = name.replace(/^\d+\.\s*/, "");
+    players.push(name);
     document.getElementById("playerInput").value = "";
     updateAuctionData();
   }
@@ -226,8 +234,19 @@ window.markAsSold = function() {
   if (!soldPlayers[currentTeam]) {
     soldPlayers[currentTeam] = [];
   }
-  soldPlayers[currentTeam].push(currentPlayer);
+  soldPlayers[currentTeam].push({
+    name: currentPlayer,
+    price: currentBidValue
+  });
   budgets[currentTeam] = parseFloat((budgets[currentTeam] - currentBidValue).toFixed(1));
+
+  lastCompleted = {
+    player: currentPlayer,
+    bid: currentBidValue,
+    team: currentTeam,
+    type: 'sold'
+  };
+
   currentPlayer = "";
   currentBidValue = 0;
   currentTeam = "";
@@ -239,6 +258,14 @@ window.markAsSold = function() {
 window.markAsUnsold = function() {
   if (!currentPlayer) return;
   unsoldPlayers.push(currentPlayer);
+
+  lastCompleted = {
+    player: currentPlayer,
+    bid: currentBidValue,
+    team: null,
+    type: 'unsold'
+  };
+
   currentPlayer = "";
   currentBidValue = 0;
   currentTeam = "";
@@ -246,6 +273,31 @@ window.markAsUnsold = function() {
   bidHistory = [];
   updateAuctionData();
 }
+
+window.undoSoldUnsold = function() {
+  if (!lastCompleted) {
+    alert("Nothing to undo!");
+    return;
+  }
+
+  if (lastCompleted.type === 'sold') {
+    let teamList = soldPlayers[lastCompleted.team];
+    if (teamList && teamList.length > 0) {
+      teamList.pop();
+      budgets[lastCompleted.team] = parseFloat((budgets[lastCompleted.team] + lastCompleted.bid).toFixed(1));
+    }
+  } else if (lastCompleted.type === 'unsold') {
+    unsoldPlayers.pop();
+  }
+
+  currentPlayer = lastCompleted.player;
+  currentBidValue = lastCompleted.bid;
+  currentTeam = lastCompleted.team;
+  hasFirstBid = !!lastCompleted.team;
+
+  lastCompleted = null;
+  updateAuctionData();
+};
 
 window.resetBid = function() {
   currentBidValue = basePrice;
@@ -274,6 +326,6 @@ window.resetAllAuction = function() {
   bidIncrement = 0.2;
   basePrice = 2;
   bidHistory = [];
-
+  lastCompleted = null;
   updateAuctionData();
 }
