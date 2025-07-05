@@ -13,15 +13,16 @@
         <h4>Enter Password to Enable Auction</h4>
         <input type="password" id="settingsPassword" placeholder="Enter password" />
         <button onclick="checkPassword()">Enter</button>
-        <button onclick="resetAllAuction()" style="background: red; color: white;">RESET ALL</button>
         <div id="settingsContent" class="hidden">
+          <button onclick="resetAllAuction()" style="background: red; color: white;">RESET ALL</button>
           <h4>Set Team Purses (Cr)</h4>
-          <input type="number" id="yellowPurse" placeholder="Yellow Purse" value="2" step="0.1"/>
-          <input type="number" id="greenPurse" placeholder="Green Purse" value="2" step="0.1"/>
-          <input type="number" id="bluePurse" placeholder="Blue Purse" value="2" step="0.1"/>
-          <input type="number" id="blackPurse" placeholder="Black Purse" value="2" step="0.1"/>
-          <input type="number" id="redPurse" placeholder="Red Purse" value="2" step="0.1"/>
-          <input type="number" id="whitePurse" placeholder="White Purse" value="2" step="0.1"/>
+          <input type="number" id="yellowPurse" placeholder="Yellow Purse" value="20" step="0.1"/>
+          <input type="number" id="greenPurse" placeholder="Green Purse" value="20" step="0.1"/>
+          <input type="number" id="bluePurse" placeholder="Blue Purse" value="20" step="0.1"/>
+          <input type="number" id="blackPurse" placeholder="Black Purse" value="20" step="0.1"/>
+          <input type="number" id="redPurse" placeholder="Red Purse" value="20" step="0.1"/>
+          <input type="number" id="whitePurse" placeholder="White Purse" value="20" step="0.1"/>
+          <button class="action-btn undo" onclick="undoSoldUnsold()" disabled>UNDO SOLD/UNSOLD</button>
           <h4>Set Base Price (Cr)</h4>
           <input type="number" id="basePriceInput" placeholder="Base Price" value="2" step="0.1"/>
           <button onclick="applyPurseSettings()">Apply</button>
