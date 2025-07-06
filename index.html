@@ -4,32 +4,31 @@
   <meta charset="UTF-8" />
   <title>Cricket Auction App</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.30/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
   <div class="left-panel">
     <div class="settings">
-      <button onclick="openSettings()">⚙️ Settings</button>
+      <button onclick="openSettings()">⚙️</button>
       <div id="settingsPanel" class="hidden">
-        <h4>Enter Password to Enable Auction</h4>
+        <h4>ENTER PASSWORD TO ENABLE AUCTION</h4>
         <input type="password" id="settingsPassword" placeholder="Enter password" />
         <button onclick="checkPassword()">Enter</button>
         <div id="settingsContent" class="hidden">
           <button onclick="resetAllAuction()" style="background: red; color: white;">RESET ALL</button>
-          <h4>Set Team Purses (Cr)</h4>
-          <input type="number" id="yellowPurse" placeholder="Yellow Purse" value="20" step="0.1"/>
-          <input type="number" id="greenPurse" placeholder="Green Purse" value="20" step="0.1"/>
-          <input type="number" id="bluePurse" placeholder="Blue Purse" value="20" step="0.1"/>
-          <input type="number" id="blackPurse" placeholder="Black Purse" value="20" step="0.1"/>
-          <input type="number" id="redPurse" placeholder="Red Purse" value="20" step="0.1"/>
-          <input type="number" id="whitePurse" placeholder="White Purse" value="20" step="0.1"/>
+          <h4>SET COMMON TEAM PURSE (Cr)</h4>
+          <input type="number" id="commonPurse" placeholder="Team Purse" value="20" step="0.1"/>
           <button class="action-btn undo" onclick="undoSoldUnsold()" disabled>UNDO SOLD/UNSOLD</button>
-          <h4>Set Base Price (Cr)</h4>
+          <h4>INCREMENT/BID</h4>
+          <input type="number" id="bidIncrement" placeholder="Bid increment (Cr)" value="0.2" step="0.1" disabled />
+          <h4>SET BASE PRICE (Cr)</h4>
           <input type="number" id="basePriceInput" placeholder="Base Price" value="2" step="0.1"/>
           <button onclick="applyPurseSettings()">Apply</button>
-          <h4>Add Players</h4>
+          <h4>ADD PLAYERS</h4>
           <input type="text" id="playerInput" placeholder="Enter player name" disabled />
           <button id="addPlayerBtn" onclick="addPlayer()" disabled>Add Player</button>
-          <input type="number" id="bidIncrement" placeholder="Bid increment (Cr)" value="0.2" step="0.1" disabled />
+          <button onclick="exportAuctionData()" style="background: purple; color: white; margin-top: 10px;">Export PDF</button>
         </div>
       </div>
     </div>
