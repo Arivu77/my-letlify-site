@@ -61,6 +61,16 @@ body {
   align-items: center;
   padding: 20px;
   margin: 10px;
+  overflow-y: auto;
+  max-height: calc(100vh - 20px);
+}
+
+@media (max-width: 1024px) {
+  .center-panel {
+    width: 100%;
+    margin: 5px;
+    max-height: calc(100vh - 20px);
+  }
 }
 
 .player-highlight {
