@@ -201,3 +201,18 @@ body {
     max-height: 200px;
   }
 }
+@media (max-width: 1024px) {
+  body {
+    flex-direction: column;
+    height: 100vh; /* Keep fixed, no page scroll */
+  }
+
+  .left-panel,
+  .center-panel,
+  .right-panel {
+    width: 100%;
+    height: auto;
+    flex: 1;
+    overflow-y: auto; /* Still scroll internally */
+  }
+}
