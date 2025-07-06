@@ -36,7 +36,7 @@ let bidIncrement = 0.2;
 let basePrice = 2;
 let bidHistory = [];
 
-const correctPassword = "1";
+const correctPassword = "Auctionarivu";
 
 function updateAuctionData() {
   update(ref(db, 'auction'), {
@@ -136,6 +136,18 @@ function updateUI() {
   }
 }
 
+function getTeamColor(team) {
+  switch (team) {
+    case "Yellow": return "#ffeb3b";
+    case "Green": return "#4caf50";
+    case "Blue": return "#2196f3";
+    case "Black": return "#212121";
+    case "Red": return "#f44336";
+    case "White": return "#e0e0e0";
+    default: return "#ffffff";
+  }
+}
+
 window.openSettings = function() {
   document.getElementById("settingsPanel").classList.toggle("hidden");
 }
@@ -156,12 +168,13 @@ window.checkPassword = function() {
 }
 
 window.applyPurseSettings = function() {
-  budgets.Yellow = parseFloat(document.getElementById("yellowPurse").value) || 2;
-  budgets.Green = parseFloat(document.getElementById("greenPurse").value) || 2;
-  budgets.Blue = parseFloat(document.getElementById("bluePurse").value) || 2;
-  budgets.Black = parseFloat(document.getElementById("blackPurse").value) || 2;
-  budgets.Red = parseFloat(document.getElementById("redPurse").value) || 2;
-  budgets.White = parseFloat(document.getElementById("whitePurse").value) || 2;
+  const purse = parseFloat(document.getElementById("commonPurse").value) || 20;
+  budgets.Yellow = purse;
+  budgets.Green = purse;
+  budgets.Blue = purse;
+  budgets.Black = purse;
+  budgets.Red = purse;
+  budgets.White = purse;
   basePrice = parseFloat(document.getElementById("basePriceInput").value) || 2;
   bidIncrement = parseFloat(document.getElementById("bidIncrement").value) || 0.2;
   updateAuctionData();
@@ -240,6 +253,15 @@ window.markAsSold = function() {
   });
   budgets[currentTeam] = parseFloat((budgets[currentTeam] - currentBidValue).toFixed(1));
 
+  const highlight = document.querySelector(".player-highlight");
+  if (highlight) {
+    highlight.style.transition = "background 0.6s";
+    highlight.style.background = getTeamColor(currentTeam);
+    setTimeout(() => {
+      highlight.style.background = "linear-gradient(135deg, #f7971e, #ffd200)";
+    }, 1500);
+  }
+  
   lastCompleted = {
     player: currentPlayer,
     bid: currentBidValue,
@@ -281,21 +303,29 @@ window.undoSoldUnsold = function() {
   }
 
   if (lastCompleted.type === 'sold') {
+    // Undo sold player
     let teamList = soldPlayers[lastCompleted.team];
     if (teamList && teamList.length > 0) {
       teamList.pop();
       budgets[lastCompleted.team] = parseFloat((budgets[lastCompleted.team] + lastCompleted.bid).toFixed(1));
     }
   } else if (lastCompleted.type === 'unsold') {
-    unsoldPlayers.pop();
+    // Find and remove last unsold player by name
+    let index = unsoldPlayers.lastIndexOf(lastCompleted.player);
+    if (index !== -1) {
+      unsoldPlayers.splice(index, 1);
+    }
   }
 
+  // Bring back player for re-auction
   currentPlayer = lastCompleted.player;
-  currentBidValue = lastCompleted.bid;
-  currentTeam = lastCompleted.team;
+  currentBidValue = lastCompleted.bid || basePrice;
+  currentTeam = lastCompleted.team || "";
   hasFirstBid = !!lastCompleted.team;
 
+  // Clear last completed action
   lastCompleted = null;
+
   updateAuctionData();
 };
 
@@ -329,3 +359,53 @@ window.resetAllAuction = function() {
   lastCompleted = null;
   updateAuctionData();
 }
+
+window.exportAuctionData = function() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("Auction Summary", 14, 20);
+
+  let startY = 30;
+
+  // Sold Players per team
+  for (const team in soldPlayers) {
+    let teamData = soldPlayers[team]?.map(p => [p.name, `${p.price} Cr`]) || [];
+    if (teamData.length === 0) {
+      teamData = [["No players", "-"]];
+    }
+
+    doc.autoTable({
+      startY,
+      head: [[`${team} (Purse Left: ${budgets[team].toFixed(1)} Cr)`, "Price"]],
+      body: teamData,
+      headStyles: {
+        fillColor: getTeamColor(team),
+        textColor: team === "Yellow" || team === "White" ? "#000" : "#FFF",
+      },
+      theme: 'striped'
+    });
+
+    startY = doc.previousAutoTable.finalY + 10;
+  }
+
+  // Unsold Players
+  let unsoldData = unsoldPlayers.map(p => [p]);
+  if (unsoldData.length === 0) {
+    unsoldData = [["None"]];
+  }
+
+  doc.autoTable({
+    startY,
+    head: [["Unsold Players"]],
+    body: unsoldData,
+    headStyles: {
+      fillColor: [244, 67, 54], // Red gradient head
+      textColor: "#FFF",
+    },
+    theme: 'striped'
+  });
+
+  doc.save("auction_summary.pdf");
+};
