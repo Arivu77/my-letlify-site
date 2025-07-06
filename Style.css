@@ -61,8 +61,6 @@ body {
   align-items: center;
   padding: 20px;
   margin: 10px;
-  overflow-y: auto;
-  max-height: calc(100vh - 20px);
 }
 
 .player-highlight {
@@ -198,57 +196,6 @@ body {
   margin: 0;
   padding-left: 25px;
 }
-@media screen and (max-width: 768px) {
-  body {
-    flex-direction: column;
-    height: auto;
-    overflow: auto;
-  }
-
-  .left-panel,
-  .center-panel,
-  .right-panel {
-    width: 90%;
-    margin: 10px auto;
-    max-height: none;
-  }
-
-  .player-highlight {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .player-emoji {
-    font-size: 50px;
-  }
-
-  .player-name {
-    font-size: 24px;
-  }
-
-  .current-bid {
-    font-size: 20px;
-    padding: 8px 20px;
-  }
-
-  .buttons {
-    flex-wrap: wrap;
-  }
-
-  .bid-btn {
-    width: 50px;
-    height: 50px;
-    font-size: 14px;
-  }
-
-  .action-btn {
-    padding: 8px 15px;
-    font-size: 14px;
-  }
-
-  .team-tables {
-    grid-template-columns: 1fr;
-  }
 
   .team-table ol {
     max-height: 200px;
