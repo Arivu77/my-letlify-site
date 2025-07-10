@@ -364,47 +364,99 @@ window.exportAuctionData = function() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  doc.setFontSize(18);
-  doc.text("Auction Summary", 14, 20);
+  const teamNames = ["Yellow", "Green", "Blue", "Black", "Red", "White"];
+  const teamColors = {
+    Yellow: [255, 235, 59],
+    Green: [76, 175, 80],
+    Blue: [33, 150, 243],
+    Black: [33, 33, 33],
+    Red: [244, 67, 54],
+    White: [224, 224, 224],
+    Unsold: [255, 99, 132]
+  };
 
-  let startY = 30;
+  // Prepare header labels with purse
+  const headers = teamNames.map(team => `${team}\n(${budgets[team].toFixed(1)} Cr)`);
+  headers.push("Unsold");
 
-  // Sold Players per team
-  for (const team in soldPlayers) {
-    let teamData = soldPlayers[team]?.map(p => [p.name, `${p.price} Cr`]) || [];
-    if (teamData.length === 0) {
-      teamData = [["No players", "-"]];
+  // Prepare rows
+  const maxRows = Math.max(
+    ...teamNames.map(team => (soldPlayers[team] ? soldPlayers[team].length : 0)),
+    unsoldPlayers.length
+  );
+
+  const rows = [];
+  for (let i = 0; i < maxRows; i++) {
+    const row = [];
+    for (const team of teamNames) {
+      if (soldPlayers[team] && soldPlayers[team][i]) {
+        const p = soldPlayers[team][i];
+        row.push(`${p.name}\n${p.price} Cr`);
+      } else {
+        row.push("");
+      }
     }
-
-    doc.autoTable({
-      startY,
-      head: [[`${team} (Purse Left: ${budgets[team].toFixed(1)} Cr)`, "Price"]],
-      body: teamData,
-      headStyles: {
-        fillColor: getTeamColor(team),
-        textColor: team === "Yellow" || team === "White" ? "#000" : "#FFF",
-      },
-      theme: 'striped'
-    });
-
-    startY = doc.previousAutoTable.finalY + 10;
+    row.push(unsoldPlayers[i] || "");
+    rows.push(row);
   }
 
-  // Unsold Players
-  let unsoldData = unsoldPlayers.map(p => [p]);
-  if (unsoldData.length === 0) {
-    unsoldData = [["None"]];
-  }
+  const headerColors = teamNames.map(t => teamColors[t]);
+  headerColors.push(teamColors.Unsold);
+
+  const headerTextColors = teamNames.map(t => (t === "Yellow" || t === "White" ? [0, 0, 0] : [255, 255, 255]));
+  headerTextColors.push([255, 255, 255]); // Unsold text color
 
   doc.autoTable({
-    startY,
-    head: [["Unsold Players"]],
-    body: unsoldData,
-    headStyles: {
-      fillColor: [244, 67, 54], // Red gradient head
-      textColor: "#FFF",
+    head: [headers],
+    body: rows,
+    startY: 20,
+    styles: {
+      fontSize: 7,
+      cellPadding: 1,
+      valign: 'middle',
+      halign: 'center',
+      lineColor: [44, 62, 80],
+      lineWidth: 0.3
     },
-    theme: 'striped'
+    theme: 'grid',
+    headStyles: {
+      fillColor: [255, 255, 255], // Dummy; override below
+      textColor: [0, 0, 0],
+      fontSize: 8,
+      fontStyle: 'bold'
+    },
+    didDrawCell: function(data) {
+      if (data.section === 'head') {
+        const colIdx = data.column.index;
+        const color = headerColors[colIdx];
+        const textColor = headerTextColors[colIdx];
+
+        // Fill background
+        doc.setFillColor(...color);
+        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height, 'F');
+
+        // Set text color
+        doc.setTextColor(...textColor);
+
+        // Text lines (split on \n for purse line)
+        const lines = data.cell.raw.split("\n");
+        const cellX = data.cell.x + data.cell.width / 2;
+        const cellY = data.cell.y + data.cell.height / 2;
+
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'bold');
+
+        if (lines.length === 2) {
+          doc.text(lines[0], cellX, cellY - 2, { align: 'center', baseline: 'middle' });
+          doc.text(lines[1], cellX, cellY + 3, { align: 'center', baseline: 'middle' });
+        } else {
+          doc.text(lines[0], cellX, cellY, { align: 'center', baseline: 'middle' });
+        }
+
+        // Clear autoTable's default text
+        data.cell.text = '';
+      }
+    }
   });
 
   doc.save("auction_summary.pdf");
