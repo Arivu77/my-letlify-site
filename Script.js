@@ -33,6 +33,8 @@ let soldPlayers = {};
 let unsoldPlayers = [];
 let hasFirstBid = false;
 let bidIncrement = 0.2;
+let thresholdValue = 1;
+let incrementAfterThreshold = 0.5;
 let basePrice = 2;
 let bidHistory = [];
 
@@ -175,10 +177,14 @@ window.applyPurseSettings = function() {
   budgets.Black = purse;
   budgets.Red = purse;
   budgets.White = purse;
+
   basePrice = parseFloat(document.getElementById("basePriceInput").value) || 2;
   bidIncrement = parseFloat(document.getElementById("bidIncrement").value) || 0.2;
+  thresholdValue = parseFloat(document.getElementById("thresholdValue").value) || 1; // new
+  incrementAfterThreshold = parseFloat(document.getElementById("incrementAfterThreshold").value) || 0.5; // new
+
   updateAuctionData();
-}
+};
 
 window.addPlayer = function() {
   let name = document.getElementById("playerInput").value.trim();
@@ -210,13 +216,23 @@ window.bid = function(team) {
     alert(`${team} has no purse left!`);
     return;
   }
+
   if (!hasFirstBid) {
     hasFirstBid = true;
     currentTeam = team;
     currentBidValue = basePrice;
   } else {
     bidHistory.push({ value: currentBidValue, team: currentTeam });
-    let nextBid = parseFloat((currentBidValue + bidIncrement).toFixed(1));
+
+    let incrementToUse = bidIncrement;
+
+    // Use higher increment after threshold
+    if (currentBidValue >= thresholdValue) {
+      incrementToUse = incrementAfterThreshold;
+    }
+
+    let nextBid = parseFloat((currentBidValue + incrementToUse).toFixed(2));
+
     if (budgets[team] >= nextBid) {
       currentBidValue = nextBid;
       currentTeam = team;
@@ -225,9 +241,9 @@ window.bid = function(team) {
       return;
     }
   }
+
   updateAuctionData();
 };
-
 window.undoBid = function() {
   if (!hasFirstBid || bidHistory.length === 0) {
     alert("Cannot undo further!");
