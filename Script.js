@@ -89,12 +89,12 @@ function updateUI() {
   }
   document.getElementById("currentBid").innerText = bidText;
 
-  document.getElementById("yellowBudget").innerText = `${budgets.Yellow.toFixed(1)} Cr`;
-  document.getElementById("greenBudget").innerText = `${budgets.Green.toFixed(1)} Cr`;
-  document.getElementById("blueBudget").innerText = `${budgets.Blue.toFixed(1)} Cr`;
-  document.getElementById("blackBudget").innerText = `${budgets.Black.toFixed(1)} Cr`;
-  document.getElementById("redBudget").innerText = `${budgets.Red.toFixed(1)} Cr`;
-  document.getElementById("whiteBudget").innerText = `${budgets.White.toFixed(1)} Cr`;
+  document.getElementById("yellowBudget").innerText = `${budgets.Yellow.toFixed(2)} Cr`;
+  document.getElementById("greenBudget").innerText = `${budgets.Green.toFixed(2)} Cr`;
+  document.getElementById("blueBudget").innerText = `${budgets.Blue.toFixed(2)} Cr`;
+  document.getElementById("blackBudget").innerText = `${budgets.Black.toFixed(2)} Cr`;
+  document.getElementById("redBudget").innerText = `${budgets.Red.toFixed(2)} Cr`;
+  document.getElementById("whiteBudget").innerText = `${budgets.White.toFixed(2)} Cr`;
 
   const soldListElems = {
     Yellow: document.getElementById("yellowList"),
@@ -267,7 +267,7 @@ window.markAsSold = function() {
     name: currentPlayer,
     price: currentBidValue
   });
-  budgets[currentTeam] = parseFloat((budgets[currentTeam] - currentBidValue).toFixed(1));
+  budgets[currentTeam] = parseFloat((budgets[currentTeam] - currentBidValue).toFixed(2));
 
   const highlight = document.querySelector(".player-highlight");
   if (highlight) {
@@ -323,7 +323,7 @@ window.undoSoldUnsold = function() {
     let teamList = soldPlayers[lastCompleted.team];
     if (teamList && teamList.length > 0) {
       teamList.pop();
-      budgets[lastCompleted.team] = parseFloat((budgets[lastCompleted.team] + lastCompleted.bid).toFixed(1));
+      budgets[lastCompleted.team] = parseFloat((budgets[lastCompleted.team] + lastCompleted.bid).toFixed(2));
     }
   } else if (lastCompleted.type === 'unsold') {
     // Find and remove last unsold player by name
