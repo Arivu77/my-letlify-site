@@ -29,6 +29,7 @@ let budgets = {
   Red: 2,
   White: 2
 };
+let currentIndex = 0;
 let soldPlayers = {};
 let unsoldPlayers = [];
 let hasFirstBid = false;
@@ -168,6 +169,18 @@ window.checkPassword = function() {
     alert("Wrong password!");
   }
 }
+
+window.swapUnsoldPlayers = function () {
+  // Normalize all entries to string names
+  players = unsoldPlayers.map(player =>
+    typeof player === "string" ? player : player.name
+  );
+  currentIndex = 0;
+  unsoldPlayers = [];
+  currentPlayer = null;
+  updateAuctionData();
+  alert("Unsold players moved back to the main list!");
+};
 
 window.applyPurseSettings = function() {
   const purse = parseFloat(document.getElementById("commonPurse").value) || 20;
